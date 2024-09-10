@@ -1,0 +1,101 @@
+﻿@model IEnumerable<SDSDemo.Models.RecyclableItem>
+
+@{
+    ViewBag.Title = "Recyclable Items";
+}
+
+<h2>Recyclable Items</h2>
+
+    @Html.AntiForgeryToken()
+
+<p>
+    @Html.ActionLink("Create New Recyclable Item", "Create")
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Recyclable Type</th>
+            <th>Weight</th>
+            <th>Computed Rate</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr id="item-@item.Id">
+                <td>@item.RecyclableType.Type</td>
+                <td>@item.Weight</td>
+                <td>@item.ComputedRate</td>
+                <td>@item.ItemDescription</td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    <a href="#" class="text-danger" onclick="showDeleteRecyclableItemModal(@item.Id, '@item.ItemDescription', @item.Weight, @item.ComputedRate, '@item.RecyclableType.Type'); return false;">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteRecyclableItemModal" tabindex="-1" role="dialog" aria-labelledby="deleteRecyclableItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteRecyclableItemModalLabel">Delete Recyclable Item</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="deleteRecyclableItemForm">
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this recyclable item?</p>
+                    <div id="recyclableItemDetails">
+                        <!-- Details will be injected here by JavaScript -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="deleteRecyclableItem()">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    var deleteId = 0; // Variable to store the ID of the item to delete
+
+    function showDeleteRecyclableItemModal(id, description, weight, computedRate, recyclableTypeName) {
+        deleteId = id;
+        $('#recyclableItemDetails').html(
+            `<strong>Item Description:</strong> ${description}<br />
+             <strong>Weight:</strong> ${weight}<br />
+             <strong>Computed Rate:</strong> ${computedRate}<br />
+             <strong>Recyclable Type:</strong> ${recyclableTypeName}`
+        );
+        $('#deleteRecyclableItemModal').modal('show');
+    }
+
+    function deleteRecyclableItem() {
+       
+        $.ajax({
+            url: '/RecyclableItem/Delete/' + deleteId, // URL to delete item
+            type: 'POST',
+            data: {
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() // Anti-forgery token
+            },
+            success: function (result) {
+                // On success, remove the item from the table and close the modal
+                $('#item-' + deleteId).remove();
+                $('#deleteRecyclableItemModal').modal('hide');
+            },
+            error: function (xhr, status, error) {
+                console.error('Error occurred:', status, error);
+                alert('An error occurred while deleting the item.');
+            }
+        });
+    }
+</script>

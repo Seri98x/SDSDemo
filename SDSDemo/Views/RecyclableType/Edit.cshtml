@@ -1,0 +1,85 @@
+﻿@model SDSDemo.Models.RecyclableType
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit Recyclable Type</h2>
+@Html.AntiForgeryToken()
+@using (Html.BeginForm())
+{
+
+
+    <div class="form-horizontal">
+        <h4>Recyclable Type</h4>
+        <hr />
+        @Html.HiddenFor(model => model.Id)
+        <div class="form-group">
+            @Html.LabelFor(model => model.Type, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Type, new { id = "TypeInput" })
+                @Html.ValidationMessageFor(model => model.Type)
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Rate, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Rate, new { id = "RateInput" })
+                @Html.ValidationMessageFor(model => model.Rate)
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.MinKg, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.MinKg, new { id = "MinKgInput" })
+                @Html.ValidationMessageFor(model => model.MinKg)
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.MaxKg, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.MaxKg, new { id = "MaxKgInput" })
+                @Html.ValidationMessageFor(model => model.MaxKg)
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+                @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-default" })
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Store the initial values of the form fields
+            var initialValues = {
+                Type: $('#Type').val(),
+                Rate: $('#Rate').val(),
+                MinKg: $('#MinKg').val(),
+                MaxKg: $('#MaxKg').val()
+            };
+
+            window.resetForm = function () {
+                // Check for validation errors
+                if ($('.input-validation-error').length > 0) {
+                    // Redirect to the same URL if there are validation errors
+                    window.location.href = window.location.href;
+                } else {
+                    // Restore the initial values if no validation errors
+                    $('#Type').val(initialValues.Type);
+                    $('#Rate').val(initialValues.Rate);
+                    $('#MinKg').val(initialValues.MinKg);
+                    $('#MaxKg').val(initialValues.MaxKg);
+
+                    // Clear validation messages and remove error styling
+                    $('.field-validation-error').html('');
+                    $('.input-validation-error').removeClass('input-validation-error');
+                }
+            }
+        });
+    </script>
+}

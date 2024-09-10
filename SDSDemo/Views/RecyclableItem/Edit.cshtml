@@ -1,0 +1,105 @@
+﻿@model SDSDemo.Models.RecyclableItem
+
+@{
+    ViewBag.Title = "Edit Recyclable Item";
+}
+
+<h2>Edit Recyclable Item</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Recyclable Item</h4>
+        <hr />
+        @Html.HiddenFor(model => model.Id)
+        <div class="form-group">
+            @Html.Label("Recyclable Type", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("RecyclableTypeId", (IEnumerable<SelectListItem>)ViewBag.RecyclableTypes, "Select Recyclable Type", new { @class = "form-control", id = "RecyclableTypeDropdown" })
+                @Html.ValidationMessage("RecyclableTypeId")
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.ItemDescription, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.ItemDescription)
+                @Html.ValidationMessageFor(model => model.ItemDescription)
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Weight, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Weight, new { @class = "form-control", id = "WeightInput" })
+                @Html.ValidationMessageFor(model => model.Weight)
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.ComputedRate, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.ComputedRate, new { @class = "form-control", id = "ComputedRate", @disabled = "disabled" })
+                @Html.ValidationMessageFor(model => model.ComputedRate)
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+                @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-default" })
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Store initial values for reset
+            var initialRecyclableTypeId = $('#RecyclableTypeDropdown').val();
+            var initialItemDescription = $('#ItemDescription').val();
+            var initialWeight = $('#Weight').val();
+            var initialComputedRate = $('#ComputedRate').val();
+
+            // Attach event handlers
+            $('#RecyclableTypeDropdown, #Weight').on('change keyup', calculateComputedRate);
+
+            function calculateComputedRate() {
+                var typeId = $('#RecyclableTypeDropdown').val();
+                var weight = parseFloat($('#Weight').val());
+
+                if (typeId && !isNaN(weight)) {
+                    $.ajax({
+                        url: '@Url.Action("GetRateByTypeId", "RecyclableType")',
+                        contentType: "application/json; charset=utf-8",
+                        data: { id: typeId },
+                        dataType: "json",
+                        success: function (data) {
+                            var rate = parseFloat(data);
+                            var computedRate = (weight * rate).toFixed(2);
+                            $('#ComputedRate').val(computedRate);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error occurred:', status, error);
+                            $('#ComputedRate').val('');
+                        }
+                    });
+                } else {
+                    $('#ComputedRate').val('');
+                }
+            }
+
+            window.resetForm = function () {
+                // Reset fields to their initial values
+                $('#RecyclableTypeDropdown').val(initialRecyclableTypeId);
+                $('#ItemDescription').val(initialItemDescription);
+                $('#Weight').val(initialWeight);
+                $('#ComputedRate').val(initialComputedRate);
+
+                // Clear validation messages
+                $('.field-validation-error').html('');
+                $('.input-validation-error').removeClass('input-validation-error');
+            }
+        });
+    </script>
+}

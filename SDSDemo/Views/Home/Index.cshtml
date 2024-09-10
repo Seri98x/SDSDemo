@@ -1,0 +1,47 @@
+﻿@{
+    ViewBag.Title = "Home";
+}
+
+<h2>Tables</h2>
+
+<div class="container">
+    <div class="row">
+        <!-- Card for RecyclableType -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Recyclable Types</h4>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <a href="@Url.Action("Index", "RecyclableType")" class="btn btn-primary">List</a>
+                        <a href="@Url.Action("Create", "RecyclableType")" class="btn btn-success">Add</a>
+                    </p>
+                    <p>
+ 
+                        <!-- Edit button needs an ID to be functional; consider redirecting to a default Edit page or removing it if unnecessary -->
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card for RecyclableItem -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Recyclable Items</h4>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <a href="@Url.Action("Index", "RecyclableItem")" class="btn btn-primary">List</a>
+                        <a href="@Url.Action("Create", "RecyclableItem")" class="btn btn-success">Add</a>
+                    </p>
+                    <p>
+
+                        <!-- Edit button needs an ID to be functional; consider redirecting to a default Edit page or removing it if unnecessary -->
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

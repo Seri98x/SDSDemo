@@ -1,0 +1,104 @@
+﻿@model SDSDemo.Models.RecyclableItem
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create Recyclable Item</h2>
+
+<form id="createRecyclableItemForm" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Recyclable Item</h4>
+        <hr />
+        <div class="form-group">
+            @Html.Label("Recyclable Type", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("RecyclableTypeId", (IEnumerable<SelectListItem>)ViewBag.RecyclableTypes, "Select Recyclable Type", new { @class = "form-control" })
+                @Html.ValidationMessage("RecyclableTypeId")
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.ItemDescription, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.ItemDescription)
+                @Html.ValidationMessageFor(model => model.ItemDescription)
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Weight, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Weight)
+                @Html.ValidationMessageFor(model => model.Weight)
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.ComputedRate, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.ComputedRate, new { @readonly = "readonly", @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ComputedRate)
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+                @Html.ActionLink("Cancel", "Index", null, new { @class = "btn btn-default" })
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Recalculate computed rate when weight or type changes
+            $('#RecyclableTypeId, #Weight').on('change keyup', calculateComputedRate);
+
+            function calculateComputedRate() {
+                var typeId = $('#RecyclableTypeId').val();
+                var weight = parseFloat($('#Weight').val());
+
+                if (typeId && !isNaN(weight)) {
+                    $.ajax({
+                        url: '@Url.Action("GetRateByTypeId", "RecyclableType")',
+                        contentType: "application/json; charset=utf-8",
+                        data: { id: typeId },
+                        dataType: "json",
+                        success: function (data) {
+                            var rate = parseFloat(data);
+                            var computedRate = (weight * rate).toFixed(2);
+                            $('#ComputedRate').val(computedRate);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error occurred:', status, error);
+                            $('#ComputedRate').val('');
+                        }
+                    });
+                } else {
+                    $('#ComputedRate').val('');
+                }
+            }
+        });
+
+        function resetForm() {
+            // Clear all form fields
+            $('#createRecyclableItemForm')[0].reset();
+
+            // Clear validation messages
+            $('.field-validation-error').html('');
+            $('.input-validation-error').removeClass('input-validation-error');
+
+            // Reset computed rate to empty
+            $('#ComputedRate').val('');
+
+            // Reset dropdown to the default option
+            $('#RecyclableTypeId').val('');
+            $('#Weight').val('');
+            $('#ItemDescription').val('');
+
+            // Optional: if using Select2 or other custom dropdowns, you may need to reset them separately
+        }
+    </script>
+}
